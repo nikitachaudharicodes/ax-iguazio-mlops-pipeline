@@ -1,0 +1,10 @@
+metadata:
+  name: train-surprise-svd
+  namespace: nuclio
+spec:
+  runtime: python:3.9
+  handler: train_surprise_svd_nuclio:handler
+  build:
+    commands:
+      - pip install -r requirements.txt
+    baseImage: python:3.9

@@ -17,4 +17,4 @@ plotly >=2.2.1
 torch
 ax-platform
 scikit-surprise
-mlrun
+mlrun[api]

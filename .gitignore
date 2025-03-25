@@ -6,3 +6,4 @@ data_ingestion/04_update_stream.py
 data_ingestion/05_update_user_movie.py
 __pycache__
 migration/
+mlrun-venv/

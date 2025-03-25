@@ -1,0 +1,4 @@
+scikit-surprise
+joblib
+pandas
+numpy
