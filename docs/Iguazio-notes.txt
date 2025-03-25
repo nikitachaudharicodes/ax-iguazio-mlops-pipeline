@@ -1,0 +1,20 @@
+Overview of Iguazio Architecture
+MLRun: an orchestration and MLOps platform that handles:
+Code versioning, container builds, artifact logging, metrics, etc.
+Creating pipelines of steps (data prep, training, deployment).
+Nuclio: a serverless or microservice framework used for real-time event processing or model serving.
+In a typical flow:
+You define one or more “functions” in MLRun (like a train_svd function, a batch_inference function, etc.).
+You run them on a schedule or in response to events, or tie them together in a pipeline.
+Once you have the final/best model, you can deploy it to a Nuclio serverless function for low-latency inference.
+B. Integrating Ax with MLRun
+There are two main ways, as discussed before:
+Local Ax orchestrates trials, each trial calls an MLRun “function” for training:
+def evaluation_function(params): mlrun.run_function("train_surprise_fn", params=...).
+Each trial becomes a separate MLRun job, you see them in the MLRun UI with logs, artifacts, etc.
+MLRun pipeline** does the entire flow**: You define steps for “pick hyperparams,” “train,” etc. This can be more static (like a grid search) unless you embed Ax logic.
+A typical synergy is:
+Ax is your adaptive search logic.
+Each time Ax picks a hyperparam set, it invokes MLRun to do the training.
+MLRun logs metrics & artifacts.
+Ax retrieves the new metric from MLRun’s run outputs.

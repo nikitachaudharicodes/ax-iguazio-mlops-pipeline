@@ -1,0 +1,53 @@
+Ax:
+
+You tell Ax:
+“I want to tune these parameters:
+n_factors: 10 to 100
+n_epochs: 5 to 100
+lr_all: 0.001 to 0.1
+reg_all: 0.01 to 0.5”
+This is your parameter space (a 4D box, technically).
+
+
+Step 2: Initialize With Sobol (Quasi-Random Search)
+Before it can make intelligent guesses, Ax needs some baseline data. So:
+It uses a technique called Sobol sampling, which is a smarter form of random (low-discrepancy) search.
+It runs the first few (e.g., 5–8) trials by picking random-ish values from your hyperparam ranges.
+For each set, it calls your evaluation_function(params) to get the validation RMSE.
+
+
+Step 3: Fit a Surrogate Model
+After collecting some initial data:
+Ax builds a probabilistic model (using Gaussian Processes) to model the function:
+val_rmse = f(n_factors, n_epochs, lr_all, reg_all)
+This surrogate model is cheap to evaluate and lets Ax “guess” how good unseen combinations might perform.
+
+Step 4: Select New Promising Candidates
+Using the surrogate model, Ax selects the next hyperparam combo to try by balancing:
+Exploration: Try new areas of the hyperparam space (where uncertainty is high).
+Exploitation: Zoom into areas that already look promising (where val_rmse was low).
+This is done using something called an acquisition function, like Expected Improvement (EI).
+
+Step 5: Repeat the Process
+For each new trial:
+Ax picks a param set that is expected to yield a better val_rmse.
+Runs your model training and gets the actual val_rmse.
+Updates the surrogate model with the new info.
+Repeats this loop for the remaining trials.
+
+Step 6: Pick the Best
+Once all trials are done:
+Ax looks at the best observed metric (val_rmse) from all trials.
+Returns the corresponding hyperparams as best_params.
+
+
+Our current case:
+Trials 1–8: Ax tried 8 different param sets using Sobol (smart random).
+Trials 9–10: Ax switched to Bayesian Optimization using its fitted model.
+It observed that:
+n_factors=69, n_epochs=39, lr_all=0.00227, reg_all=0.388 gave the lowest observed val_rmse.
+It returned that combo as the best.
+
+
+Gist: 
+Ax first tries smart-random param sets (Sobol), builds a model of how params relate to performance, and then uses that model to explore and exploit the best combinations in fewer trials.
